@@ -6666,8 +6666,10 @@ Bool dis_ARM64_branch_etc(/*MB_OUT*/DisResult* dres, UInt insn,
       1101011 00 10 11111 00001M nn 11111  RETA{A,B}  Rn
       1101011 00 01 11111 000000 nn 00000  CALL       Rn
       1101011 00 00 11111 000000 nn 00000  JMP        Rn
+      1101011 Z0 00 11111 00001M nn mm     JMPA{A,B}  Rn
    */
-   if (INSN(31,23) == BITS9(1,1,0,1,0,1,1,0,0)
+   if (INSN(31,23) == BITS7(1,1,0,1,0,1,1)
+       && INSN(23,23) == 0
        && INSN(20,16) == BITS5(1,1,1,1,1)
        && INSN(15,12) == BITS4(0,0,0,0)
        && (INSN(4,0) == BITS5(0,0,0,0,0)
