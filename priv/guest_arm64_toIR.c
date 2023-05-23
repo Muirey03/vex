@@ -6663,18 +6663,20 @@ Bool dis_ARM64_branch_etc(/*MB_OUT*/DisResult* dres, UInt insn,
    /* --------------------- B{L} reg --------------------- */
    /* 31      24 22 20    15     9  4
       1101011 00 10 11111 000000 nn 00000  RET        Rn
-      1101011 00 10 11111 00001M nn 00000  RETA{A,B}  Rn
+      1101011 00 10 11111 00001M nn 11111  RETA{A,B}  Rn
       1101011 00 01 11111 000000 nn 00000  CALL       Rn
       1101011 00 00 11111 000000 nn 00000  JMP        Rn
    */
    if (INSN(31,23) == BITS9(1,1,0,1,0,1,1,0,0)
        && INSN(20,16) == BITS5(1,1,1,1,1)
        && INSN(15,12) == BITS4(0,0,0,0)
-       && INSN(4,0) == BITS5(0,0,0,0,0)) {
+       && (INSN(4,0) == BITS5(0,0,0,0,0)
+       || INSN(4,0) == BITS5(1,1,1,1,1))) {
       UInt branch_type = INSN(22,21);
       UInt nn          = INSN(9,5);
+      UInt pac         = INSN(11,11);
       if (branch_type == BITS2(1,0) /* RET */) {
-         putPC(getIReg64orZR(nn));
+         putPC(pac ? getIReg64orZR(30) : getIReg64orZR(nn));
          dres->whatNext = Dis_StopHere;
          dres->jk_StopHere = Ijk_Ret;
          DIP("ret %s\n", nameIReg64orZR(nn));
