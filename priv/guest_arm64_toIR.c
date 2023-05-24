@@ -3577,6 +3577,32 @@ Bool dis_ARM64_data_processing_register(/*MB_OUT*/DisResult* dres,
       /* fall through */
    }
 
+   /* -------------------- AUT/PAC --------------------- */   
+   /* 
+      Integer:
+      31   27     21       13 12  9  4
+      1101 101011 00000100 Z  op1 Rn Rd      {AUT,PAC}{I,D}{Z}{A,B}
+
+      System:
+      31   27     21         11  7   4
+      1101 010100 0000110010 CRm op2 11111   {AUT,PAC}{I,D}{A,B}{1716,SP,Z}
+   */
+   if (INSN(31,28) == BITS4(1,1,0,1)) {
+      UInt class = INSN(27,22);
+      if (class == BITS6(1,0,1,0,1,1)
+          && INSN(21,14) == BITS8(0,0,0,0,0,1,0,0)) {
+         DIP("%s\n", INSN(12,12) ? "aut" : "pac");
+         return True;
+      }
+
+      if (class == BITS6(0,1,0,1,0,0)
+          && INSN(21, 12) == BITS10(0,0,0,0,1,1,0,0,1,0)) {
+         DIP("%s\n", INSN(7,7) ? "aut" : "pac");
+         return True;
+      }
+      /* fall through */
+   }
+
    vex_printf("ARM64 front end: data_processing_register\n");
    return False;
 #  undef INSN
